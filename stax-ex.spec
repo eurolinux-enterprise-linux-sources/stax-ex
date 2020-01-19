@@ -1,6 +1,6 @@
 Name: stax-ex
 Version: 1.7.1
-Release: 4%{?dist}
+Release: 6%{?dist}
 Summary: StAX API extensions
 Group: Development/Libraries
 License: CDDL or GPLv2
@@ -56,45 +56,32 @@ mv LICENSE.txt LICENSE.txt.tmp
 iconv -f ISO-8859-1 -t UTF-8 LICENSE.txt.tmp > LICENSE.txt
 dos2unix LICENSE.txt
 
+%mvn_file : %{name}
+
 
 %build
-mvn-rpmbuild \
-  -Dproject.build.sourceEncoding=UTF-8 \
-  install \
-  javadoc:aggregate
+%mvn_build -- -Dproject.build.sourceEncoding=UTF-8
 
 
 %install
-
-# Jar files:
-install -d -m 755 %{buildroot}%{_javadir}
-install -m 644 target/stax-ex-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
-
-# POM files:
-install -d -m 755 %{buildroot}%{_mavenpomdir}
-cp -p pom.xml %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
-
-# Javadoc files:
-install -d -m 755 %{buildroot}%{_javadocdir}/%{name}
-cp -rp target/site/apidocs/* %{buildroot}%{_javadocdir}/%{name}
-
-# Dependencies map:
-%add_maven_depmap JPP-%{name}.pom %{name}.jar
+%mvn_install
 
 
-%files
-%{_javadir}/*
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
+%files -f .mfiles
 %doc LICENSE.txt
 
 
-%files javadoc
-%{_javadocdir}/%{name}
+%files javadoc -f .mfiles-javadoc
 %doc LICENSE.txt
 
 
 %changelog
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.7.1-6
+- Mass rebuild 2013-12-27
+
+* Wed Nov 13 2013 Mikolaj Izdebski <mizdebsk@redhat.com> - 1.7.1-5
+- Update to current packaging guidelines
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.7.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
